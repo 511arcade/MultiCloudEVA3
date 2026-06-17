@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <style>
+    body { background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%); min-height: 100vh; display: flex; align-items: center; }
+    .login-card { border: none; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .login-header { background: linear-gradient(135deg, #1a237e, #283593); color: white; border-radius: 15px 15px 0 0; padding: 2rem; text-align: center; }
+    .login-header .logo { font-size: 3rem; margin-bottom: 1rem; }
+    .login-body { padding: 2rem; }
+    .btn-primary { background: #1a237e; border-color: #1a237e; padding: 0.8rem; font-weight: 600; }
+    .btn-primary:hover { background: #283593; border-color: #283593; }
+    .security-badge { position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 10px 15px; border-radius: 30px; font-size: 0.8rem; color: #1a237e; display: flex; align-items: center; gap: 8px; }
+    .step-indicator { display: flex; justify-content: center; gap: 10px; margin-bottom: 1.5rem; }
+    .step { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #e0e0e0; color: #666; font-weight: bold; font-size: 0.9rem; }
+    .step.active { background: #1a237e; color: white; }
+    .step.completed { background: #4caf50; color: white; }
+    .brand-text { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 0.85rem; opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="card login-card">
+          <div class="login-header">
+            <div class="logo"><i class="bi bi-shield-lock-fill"></i></div>
+            <div class="brand-text">Cruz Azul ERP</div>
+            <div class="subtitle">Portal de Autenticación Segura</div>
+          </div>
+          <div class="login-body">
+            <% if (typeof error !== 'undefined' && error) { %>
+              <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div><%= error %></div>
+              </div>
+            <% } %>
+            <form action="/login" method="POST" autocomplete="off">
+              <div class="mb-3">
+                <label class="form-label"><i class="bi bi-person me-1"></i>Usuario</label>
+                <input type="text" class="form-control form-control-lg" name="username" placeholder="Ingrese su usuario" required autofocus>
+              </div>
+              <div class="mb-4">
+                <label class="form-label"><i class="bi bi-lock me-1"></i>Contraseña</label>
+                <input type="password" class="form-control form-control-lg" name="password" placeholder="Ingrese su contraseña" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg w-100">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+              </button>
+            </form>
+            <hr class="my-4">
+            <div class="text-center text-muted small">
+              <i class="bi bi-info-circle me-1"></i>
+              Este portal cuenta con autenticación multifactor (MFA)
+            </div>
+            <div class="step-indicator mt-3">
+              <div class="step active">1</div>
+              <div class="step">2</div>
+              <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+                <div class="step">3</div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="security-badge">
+    <i class="bi bi-shield-check text-success"></i>
+    Conexión Segura (TLS 1.3)
+  </div>
+</body>
+</html>

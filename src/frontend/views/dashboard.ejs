@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Cruz Azul ERP</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <style>
+    body { background: #f0f2f5; }
+    .sidebar { background: linear-gradient(180deg, #1a237e 0%, #283593 100%); min-height: 100vh; color: white; }
+    .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; border-radius: 10px; margin: 2px 10px; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.15); color: white; }
+    .sidebar .nav-link i { margin-right: 10px; }
+    .main-content { padding: 20px; }
+    .stat-card { border: none; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: transform 0.2s; }
+    .stat-card:hover { transform: translateY(-3px); }
+    .welcome-banner { background: linear-gradient(135deg, #1a237e, #3949ab); color: white; border-radius: 15px; padding: 2rem; margin-bottom: 1.5rem; }
+    .auth-badge { background: rgba(255,255,255,0.15); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2 sidebar p-3 d-none d-md-block">
+        <div class="text-center mb-4 mt-2">
+          <i class="bi bi-shield-lock-fill display-6"></i>
+          <h6 class="mt-2">Cruz Azul ERP</h6>
+          <small class="opacity-75">Portal Seguro</small>
+        </div>
+        <hr class="opacity-25">
+        <nav class="nav flex-column">
+          <a class="nav-link active" href="/dashboard"><i class="bi bi-speedometer2"></i>Dashboard</a>
+          <a class="nav-link" href="/mfa/setup"><i class="bi bi-shield-plus"></i>Configurar MFA</a>
+          <a class="nav-link" href="/api/user/profile"><i class="bi bi-person"></i>Mi Perfil</a>
+          <a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i>Cerrar Sesión</a>
+        </nav>
+      </div>
+      <div class="col-md-10 main-content">
+        <div class="welcome-banner">
+          <div class="row align-items-center">
+            <div class="col">
+              <h3><i class="bi bi-person-circle me-2"></i>Bienvenido, <%= user.username %></h3>
+              <p class="mb-0 opacity-75"><%= user.role === 'admin' ? 'Administrador del Sistema' : 'Usuario' %></p>
+            </div>
+            <div class="col-auto">
+              <span class="auth-badge">
+                <i class="bi bi-shield-check me-1"></i>
+                Autenticación: <%= typeof fullAuth !== 'undefined' && fullAuth ? 'Completa (MFA)' : 'Estándar' %>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="card stat-card p-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <small class="text-muted">Estado MFA</small>
+                  <h4 class="mb-0"><%= mfaEnabled ? 'Activado' : 'No configurado' %></h4>
+                </div>
+                <div class="fs-2 <%= mfaEnabled ? 'text-success' : 'text-warning' %>">
+                  <i class="bi bi-shield-<%= mfaEnabled ? 'check' : 'exclamation' %>"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card stat-card p-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <small class="text-muted">Rol</small>
+                  <h4 class="mb-0"><%= user.role === 'admin' ? 'Administrador' : 'Usuario' %></h4>
+                </div>
+                <div class="fs-2 text-primary">
+                  <i class="bi bi-person-badge"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card stat-card p-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <small class="text-muted">Sesión</small>
+                  <h4 class="mb-0">Activa</h4>
+                </div>
+                <div class="fs-2 text-success">
+                  <i class="bi bi-clock-history"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card stat-card p-4">
+          <h5><i class="bi bi-info-circle me-2"></i>Información de Seguridad</h5>
+          <hr>
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Factores de Autenticación</h6>
+              <ul class="list-unstyled">
+                <li><i class="bi bi-check-circle text-success me-2"></i>Paso 1: Contraseña</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Paso 2: TOTP (App Autenticadora)</li>
+                <% if (user.role === 'admin') { %>
+                  <li><i class="bi bi-check-circle text-success me-2"></i>Paso 3: Verificación SSH</li>
+                <% } %>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6>Recomendaciones</h6>
+              <ul class="list-unstyled">
+                <% if (!mfaEnabled) { %>
+                  <li><i class="bi bi-exclamation-triangle text-warning me-2"></i>Active MFA para mayor seguridad</li>
+                <% } %>
+                <li><i class="bi bi-info-circle text-info me-2"></i>No comparta sus credenciales</li>
+                <li><i class="bi bi-info-circle text-info me-2"></i>Use contraseñas seguras</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+version: '3.8'
+
+name: cruzazul-erp
+
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: cruzazul-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../src/frontend/.env
+    environment:
+      - NODE_ENV=production
+      - TZ=America/Santiago
+    volumes:
+      - cruzazul_logs:/var/log/cruzazul
+      - ../src/frontend:/app
+    networks:
+      - cruzazul_network
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db:
+    image: postgres:16-alpine
+    container_name: cruzazul-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cruzazul_erp
+      POSTGRES_USER: admin_cruzazul
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cruzazul_secure_2024}
+      TZ: America/Santiago
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../src/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    networks:
+      - cruzazul_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin_cruzazul -d cruzazul_erp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: cruzazul-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cruzazul_network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_cruzazul_2024}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:alpine
+    container_name: cruzazul-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - cruzazul_network
+    depends_on:
+      - frontend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  cruzazul_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  cruzazul_logs:
+    driver: local

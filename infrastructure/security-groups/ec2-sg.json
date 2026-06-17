@@ -1,0 +1,69 @@
+{
+  "SecurityGroupName": "cruzazul-ec2-sg",
+  "Description": "Security Group para instancia EC2 - Frontend Cruz Azul ERP",
+  "VpcId": "vpc-xxxxxxxxx",
+  "Tags": [
+    { "Key": "Name", "Value": "cruzazul-ec2-sg" },
+    { "Key": "Environment", "Value": "production" },
+    { "Key": "Project", "Value": "CruzAzul-ERP" }
+  ],
+  "SecurityGroupIngress": [
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 80,
+      "ToPort": 80,
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",
+          "Description": "HTTP - Balanceador de carga CloudFront/CDN"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 443,
+      "ToPort": 443,
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",
+          "Description": "HTTPS - Tráfico web seguro desde internet"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 3000,
+      "ToPort": 3000,
+      "IpRanges": [
+        {
+          "CidrIp": "10.0.0.0/8",
+          "Description": "Puerto aplicación - Solo red interna VPC"
+        }
+      ]
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 22,
+      "ToPort": 22,
+      "IpRanges": [
+        {
+          "CidrIp": "10.0.0.0/16",
+          "Description": "SSH - Solo desde bastion host interno"
+        }
+      ]
+    }
+  ],
+  "SecurityGroupEgress": [
+    {
+      "IpProtocol": "-1",
+      "FromPort": -1,
+      "ToPort": -1,
+      "IpRanges": [
+        {
+          "CidrIp": "0.0.0.0/0",
+          "Description": "Tráfico saliente todo a internet"
+        }
+      ]
+    }
+  ]
+}

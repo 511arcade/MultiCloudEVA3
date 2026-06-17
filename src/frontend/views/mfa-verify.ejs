@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <style>
+    body { background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%); min-height: 100vh; display: flex; align-items: center; }
+    .mfa-card { border: none; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+    .mfa-header { background: linear-gradient(135deg, #1a237e, #283593); color: white; border-radius: 15px 15px 0 0; padding: 2rem; text-align: center; }
+    .mfa-header .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .mfa-body { padding: 2rem; }
+    .btn-primary { background: #1a237e; border-color: #1a237e; padding: 0.8rem; font-weight: 600; }
+    .btn-primary:hover { background: #283593; border-color: #283593; }
+    .step-indicator { display: flex; justify-content: center; gap: 10px; margin-bottom: 1.5rem; }
+    .step { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #e0e0e0; color: #666; font-weight: bold; font-size: 0.9rem; }
+    .step.active { background: #1a237e; color: white; }
+    .step.completed { background: #4caf50; color: white; }
+    .otp-input { letter-spacing: 8px; font-size: 1.5rem; text-align: center; font-weight: bold; }
+    .security-badge { position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 10px 15px; border-radius: 30px; font-size: 0.8rem; color: #1a237e; display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="card mfa-card">
+          <div class="mfa-header">
+            <% if (typeof step3 !== 'undefined' && step3) { %>
+              <div class="icon"><i class="bi bi-terminal-fill"></i></div>
+              <h4>Verificación SSH</h4>
+              <p class="small mb-0 opacity-75">Paso 3: Autenticación mediante clave SSH</p>
+            <% } else { %>
+              <div class="icon"><i class="bi bi-phone-fill"></i></div>
+              <h4>Verificación en Dos Pasos</h4>
+              <p class="small mb-0 opacity-75">Paso 2: Ingrese el código de su aplicación autenticadora</p>
+            <% } %>
+          </div>
+          <div class="mfa-body">
+            <div class="step-indicator">
+              <div class="step completed"><i class="bi bi-check"></i></div>
+              <div class="step <%= typeof step3 !== 'undefined' && step3 ? 'completed' : 'active' %>">2</div>
+              <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+                <div class="step <%= typeof step3 !== 'undefined' && step3 ? 'active' : '' %>">3</div>
+              <% } %>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+              <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div><%= error %></div>
+              </div>
+            <% } %>
+
+            <% if (typeof step3 !== 'undefined' && step3) { %>
+              <p class="text-muted text-center small mb-4">
+                Como administrador, debe autenticarse mediante SSH para completar el acceso.<br>
+                <strong>Factor 3: Clave de acceso SSH</strong>
+              </p>
+              <form action="/mfa/ssh-verify" method="POST">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-key me-1"></i>Clave SSH</label>
+                  <textarea class="form-control" name="sshKey" rows="3" placeholder="Ingrese su clave privada SSH o código de verificación SSH" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                  <i class="bi bi-shield-check me-2"></i>Verificar Acceso SSH
+                </button>
+              </form>
+            <% } else { %>
+              <p class="text-muted text-center small mb-4">
+                Abra su aplicación Google Authenticator, Authy o Microsoft Authenticator<br>
+                e ingrese el código de 6 dígitos para completar la autenticación.
+              </p>
+              <form action="/mfa/verify" method="POST">
+                <div class="mb-4">
+                  <label class="form-label">Código de verificación</label>
+                  <input type="text" class="form-control form-control-lg otp-input" name="token" 
+                         placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]*" required autofocus>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                  <i class="bi bi-shield-check me-2"></i>Verificar Código
+                </button>
+              </form>
+              <div class="text-center mt-3">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  ¿No tiene acceso a su aplicación? 
+                  <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#backupModal">Use un código de respaldo</a>
+                </small>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="backupModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Código de Respaldo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Ingrese uno de sus códigos de respaldo de 8 caracteres.</p>
+          <form action="/mfa/verify" method="POST">
+            <input type="text" class="form-control" name="token" placeholder="Ej: A1B2C3D4" maxlength="8" required>
+            <button type="submit" class="btn btn-warning w-100 mt-3">Validar Código de Respaldo</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="security-badge">
+    <i class="bi bi-shield-check text-success"></i>
+    Autenticación Multifactor
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
