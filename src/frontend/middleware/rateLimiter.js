@@ -24,9 +24,15 @@ async function loginRateLimit(req, res, next) {
     next();
   } catch (err) {
     const retryAfter = Math.ceil(err.msBeforeNext / 1000) || 1800;
-    res.status(429).json({
-      error: `Demasiados intentos. Intente nuevamente en ${retryAfter} segundos.`,
-      retryAfter,
+    if (req.xhr || req.headers.accept?.includes('json')) {
+      return res.status(429).json({
+        error: `Demasiados intentos. Intente nuevamente en ${retryAfter} segundos.`,
+        retryAfter,
+      });
+    }
+    res.status(429).render('login', {
+      title: 'Iniciar Sesión - Cruz Azul ERP',
+      error: `Demasiados intentos. Intente nuevamente en ${Math.ceil(retryAfter / 60)} minutos.`,
     });
   }
 }
@@ -37,9 +43,19 @@ async function mfaRateLimit(req, res, next) {
     await mfaLimiter.consume(ip);
     next();
   } catch (err) {
-    res.status(429).json({
-      error: 'Demasiados intentos de MFA. Cuenta temporalmente bloqueada.',
-      retryAfter: Math.ceil(err.msBeforeNext / 1000),
+    if (req.xhr || req.headers.accept?.includes('json')) {
+      return res.status(429).json({
+        error: 'Demasiados intentos de MFA. Cuenta temporalmente bloqueada.',
+        retryAfter: Math.ceil(err.msBeforeNext / 1000),
+      });
+    }
+    const isSSH = req.path.includes('ssh');
+    res.status(429).render('mfa-verify', {
+      title: isSSH ? 'Verificación SSH - Cruz Azul ERP' : 'Verificación MFA - Cruz Azul ERP',
+      error: 'Demasiados intentos. Espere 15 minutos antes de intentar nuevamente.',
+      step2: !isSSH,
+      step3: isSSH,
+      isAdmin: isSSH,
     });
   }
 }

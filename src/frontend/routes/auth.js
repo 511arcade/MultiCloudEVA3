@@ -245,6 +245,36 @@ router.post('/mfa/setup/confirm', isAuthenticated, async (req, res) => {
   }
 });
 
+router.get('/dashboard', isAuthenticated, async (req, res) => {
+  try {
+    const user = req.session.user;
+    res.render('dashboard', {
+      title: 'Dashboard - Cruz Azul ERP',
+      user,
+      mfaEnabled: req.session.mfaVerified || false,
+      fullAuth: req.session.fullAuth || false,
+    });
+  } catch (err) {
+    console.error('Error loading dashboard:', err);
+    res.redirect('/login');
+  }
+});
+
+router.get('/perfil', isAuthenticated, async (req, res) => {
+  try {
+    const user = req.session.user;
+    res.render('profile', {
+      title: 'Mi Perfil - Cruz Azul ERP',
+      user,
+      mfaEnabled: req.session.mfaVerified || false,
+      fullAuth: req.session.fullAuth || false,
+    });
+  } catch (err) {
+    console.error('Error loading profile:', err);
+    res.redirect('/dashboard');
+  }
+});
+
 router.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) console.error('Error al cerrar sesión:', err);

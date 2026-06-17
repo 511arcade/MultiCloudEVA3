@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <style>
+    body { background: #f0f2f5; }
+    .sidebar { background: linear-gradient(180deg, #1a237e 0%, #283593 100%); min-height: 100vh; color: white; }
+    .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; border-radius: 10px; margin: 2px 10px; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.15); color: white; }
+    .sidebar .nav-link i { margin-right: 10px; }
+    .main-content { padding: 20px; }
+    .profile-card { border: none; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .profile-header { background: linear-gradient(135deg, #1a237e, #3949ab); color: white; border-radius: 15px 15px 0 0; padding: 2rem; text-align: center; }
+    .profile-avatar { font-size: 4rem; }
+    .info-label { color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+    .info-value { font-size: 1.1rem; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2 sidebar p-3 d-none d-md-block">
+        <div class="text-center mb-4 mt-2">
+          <i class="bi bi-shield-lock-fill display-6"></i>
+          <h6 class="mt-2">Cruz Azul ERP</h6>
+          <small class="opacity-75">Portal Seguro</small>
+        </div>
+        <hr class="opacity-25">
+        <nav class="nav flex-column">
+          <a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2"></i>Dashboard</a>
+          <a class="nav-link" href="/mfa/setup"><i class="bi bi-shield-plus"></i>Configurar MFA</a>
+          <a class="nav-link active" href="/perfil"><i class="bi bi-person"></i>Mi Perfil</a>
+          <a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i>Cerrar Sesión</a>
+        </nav>
+      </div>
+      <div class="col-md-10 main-content">
+        <div class="card profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar"><i class="bi bi-person-circle"></i></div>
+            <h3 class="mt-2"><%= user.username %></h3>
+            <p class="mb-0 opacity-75"><%= user.role === 'admin' ? 'Administrador del Sistema' : 'Usuario' %></p>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <div class="info-label">Nombre de Usuario</div>
+                  <div class="info-value"><%= user.username %></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <div class="info-label">Correo Electrónico</div>
+                  <div class="info-value"><%= user.email %></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <div class="info-label">Rol</div>
+                  <div class="info-value">
+                    <% if (user.role === 'admin') { %>
+                      <span class="badge bg-danger">Administrador</span>
+                    <% } else { %>
+                      <span class="badge bg-primary">Usuario</span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <div class="info-label">Autenticación MFA</div>
+                  <div class="info-value">
+                    <% if (mfaEnabled) { %>
+                      <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Activado</span>
+                    <% } else { %>
+                      <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle me-1"></i>No configurado</span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <div class="info-label">Nivel de Autenticación</div>
+                  <div class="info-value">
+                    <% if (fullAuth) { %>
+                      <span class="badge bg-success"><i class="bi bi-shield-check me-1"></i>Completa</span>
+                    <% } else { %>
+                      <span class="badge bg-warning text-dark"><i class="bi bi-shield me-1"></i>Parcial</span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <div class="info-label">Estado de Sesión</div>
+                  <div class="info-value">
+                    <span class="badge bg-success"><i class="bi bi-circle-fill me-1"></i>Activa</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% if (!mfaEnabled) { %>
+              <div class="alert alert-warning mt-4 d-flex align-items-center">
+                <i class="bi bi-shield-exclamation fs-4 me-3"></i>
+                <div>
+                  <strong>MFA no configurado</strong><br>
+                  <span>Active la autenticación multifactor para mayor seguridad.</span>
+                </div>
+                <a href="/mfa/setup" class="btn btn-warning ms-auto">Configurar ahora</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

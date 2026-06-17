@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <style>
+    body { background: #f0f2f5; }
+    .sidebar { background: linear-gradient(180deg, #1a237e 0%, #283593 100%); min-height: 100vh; color: white; }
+    .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; border-radius: 10px; margin: 2px 10px; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.15); color: white; }
+    .sidebar .nav-link i { margin-right: 10px; }
+    .main-content { padding: 20px; }
+    .stat-card { border: none; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .admin-tag { background: #c62828; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2 sidebar p-3 d-none d-md-block">
+        <div class="text-center mb-4 mt-2">
+          <i class="bi bi-shield-lock-fill display-6"></i>
+          <h6 class="mt-2">Cruz Azul ERP</h6>
+          <span class="admin-tag">ADMIN</span>
+        </div>
+        <hr class="opacity-25">
+        <nav class="nav flex-column">
+          <a class="nav-link" href="/admin/dashboard"><i class="bi bi-speedometer2"></i>Dashboard</a>
+          <a class="nav-link" href="/admin/logs/page"><i class="bi bi-journal-text"></i>Logs de Acceso</a>
+          <a class="nav-link" href="/admin/users/page"><i class="bi bi-people"></i>Usuarios</a>
+          <a class="nav-link" href="/admin/sessions/page"><i class="bi bi-clock"></i>Sesiones</a>
+          <a class="nav-link active" href="/admin/security/page"><i class="bi bi-shield"></i>Estado Seguridad</a>
+          <hr class="opacity-25">
+          <a class="nav-link" href="/dashboard"><i class="bi bi-arrow-left"></i>Panel Usuario</a>
+          <a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i>Cerrar Sesión</a>
+        </nav>
+      </div>
+      <div class="col-md-10 main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3><i class="bi bi-shield me-2"></i>Estado de Seguridad</h3>
+          <button class="btn btn-outline-primary" onclick="location.reload()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+          </button>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="card stat-card p-3 border-start border-danger border-4">
+              <small class="text-muted">Total Autenticaciones (24h)</small>
+              <h4 class="mb-0" id="authCountTotal">-</h4>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card p-3 border-start border-success border-4">
+              <small class="text-muted">Exitosas</small>
+              <h4 class="mb-0" id="authCountSuccess">-</h4>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card p-3 border-start border-warning border-4">
+              <small class="text-muted">Fallidas</small>
+              <h4 class="mb-0" id="authCountFailed">-</h4>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card p-3 border-start border-info border-4">
+              <small class="text-muted">Sesiones Activas</small>
+              <h4 class="mb-0" id="activeSessionsCount">-</h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="card stat-card p-4">
+          <h5><i class="bi bi-list-check me-2"></i>Políticas de Seguridad Activas</h5>
+          <hr>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex align-items-center">
+                  <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <span><strong>Rate Limiting:</strong> 5 intentos de login cada 15 minutos</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <span><strong>MFA Obligatorio:</strong> TOTP para todos los usuarios</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <span><strong>MFA 3 Factores:</strong> TOTP + SSH para administradores</span>
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex align-items-center">
+                  <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <span><strong>Sesión:</strong> Expiración cada 15 minutos</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <span><strong>Helmet.js:</strong> Headers de seguridad HTTP activos</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <span><strong>CORS:</strong> Orígenes restringidos</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card stat-card p-4 mt-4">
+          <h5><i class="bi bi-clock-history me-2"></i>Actividad Reciente (últimos 100 eventos)</h5>
+          <hr>
+          <div class="table-responsive">
+            <table class="table table-hover table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Usuario</th>
+                  <th>Estado</th>
+                  <th>IP</th>
+                  <th>Detalle</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (typeof logs !== 'undefined' && logs.length > 0) { %>
+                  <% logs.forEach(function(log) { %>
+                    <tr>
+                      <td><%= log.username %></td>
+                      <td>
+                        <% if (log.success) { %>
+                          <span class="badge bg-success">Éxito</span>
+                        <% } else { %>
+                          <span class="badge bg-danger">Fallo</span>
+                        <% } %>
+                      </td>
+                      <td><code><%= log.ip_address %></code></td>
+                      <td class="small"><%= log.details || '-' %></td>
+                      <td class="small"><%= new Date(log.attempted_at).toLocaleString('es-CL') %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr><td colspan="5" class="text-center text-muted py-3">No hay actividad reciente</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    async function loadSecurityStats() {
+      try {
+        const res = await fetch('/admin/security-status');
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('authCountTotal').textContent = data.data.authAttempts24h?.total || 0;
+          document.getElementById('authCountSuccess').textContent = data.data.authAttempts24h?.successful || 0;
+          document.getElementById('authCountFailed').textContent = data.data.authAttempts24h?.failed || 0;
+          document.getElementById('activeSessionsCount').textContent = data.data.activeSessions || 0;
+        }
+      } catch (err) {
+        console.error('Error loading security stats:', err);
+      }
+    }
+    loadSecurityStats();
+  </script>
+</body>
+</html>
